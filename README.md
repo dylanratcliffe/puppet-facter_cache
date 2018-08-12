@@ -1,95 +1,118 @@
 
 # facter_cache
 
-Welcome to your new module. A short overview of the generated parts can be found in the PDK documentation at https://puppet.com/pdk/latest/pdk_generating_modules.html .
+Caches long-running/expensive facts.
 
-The README template below provides a starting point with details about what information to include in your README.
-
-
-
-
-
-
+Based on [waveclaw/facter_cacheable](https://forge.puppet.com/waveclaw/facter_cacheable) but with a bit more user-friendly API
 
 #### Table of Contents
 
 1. [Description](#description)
-2. [Setup - The basics of getting started with facter_cache](#setup)
-    * [What facter_cache affects](#what-facter_cache-affects)
-    * [Setup requirements](#setup-requirements)
-    * [Beginning with facter_cache](#beginning-with-facter_cache)
-3. [Usage - Configuration options and additional functionality](#usage)
-4. [Limitations - OS compatibility, etc.](#limitations)
-5. [Development - Guide for contributing to the module](#development)
+2. [Usage](#usage)
+    * [Regular facts](#regular-facts)
+    * [Aggregate facts](#aggregate-facts)
+3. [Reference](#reference)
+4. [Development - Guide for contributing to the module](#development)
 
 ## Description
 
-Briefly tell users why they might want to use your module. Explain what your module does and what kind of problems users can solve with it.
+This creates a cache for facts that are expensive to run, they are still returned by Facter each run, but their values are not recalculated until the cache expires. The cache can be manually removed by deleting the cache folder:
 
-This should be a fairly short description helps the user decide if your module is what they want.
+UNIX:
 
+```
+/opt/puppetlabs/facter/cache/facter_cache
+```
 
-## Setup
+Windows:
 
-### What facter_cache affects **OPTIONAL**
-
-If it's obvious what your module touches, you can skip this section. For example, folks can probably figure out that your mysql_instance module affects their MySQL instances.
-
-If there's more that they should know about, though, this is the place to mention:
-
-* Files, packages, services, or operations that the module will alter, impact, or execute.
-* Dependencies that your module automatically installs.
-* Warnings or other important notices.
-
-### Setup Requirements **OPTIONAL**
-
-If your module requires anything extra before setting up (pluginsync enabled, another module, etc.), mention it here.
-
-If your most recent release breaks compatibility or requires particular steps for upgrading, you might want to include an additional "Upgrading" section here.
-
-### Beginning with facter_cache
-
-The very basic steps needed for a user to get the module up and running. This can include setup steps, if necessary, or it can be an example of the most basic use of the module.
+```
+C:\ProgramData\PuppetLabs\facter\cache\facter_cache
+```
 
 ## Usage
 
-Include usage examples for common use cases in the **Usage** section. Show your users how to use your module to solve problems, and be sure to include code examples. Include three to five examples of the most important or common tasks a user can accomplish with your module. Show users how to accomplish more complex tasks that involve different types, classes, and functions working in tandem.
+### Regular Facts
+
+```ruby
+require 'facter/util/caching'
+
+Facter.add(:expensive) do
+  cache_for 10, :seconds
+
+  # The cache has to have a name, doesn't matter what it is but I would
+  # recommend the same as the fact name. There is no need to use `setcode`
+  # if you are caching the value
+  cache(:expensive) do
+    sleep 2
+    'This is an expensive value'
+  end
+end
+```
+
+### Aggregate Facts
+
+```ruby
+require 'facter/util/caching'
+
+Facter.add(:aggregate_expensive, :type => :aggregate) do
+  cache_for 20, :seconds
+
+  # This chunk will be cached for the duration specified above
+  cache_chunk(:sha256) do
+    interfaces = {}
+
+    Facter.value(:networking)['interfaces'].each do |interface, values|
+      if values['mac']
+        hash                  = Digest::SHA256.digest(values['mac'])
+        encoded               = Base64.encode64(hash)
+        interfaces[interface] = {:mac_sha256 => encoded.strip}
+      end
+    end
+
+    interfaces
+  end
+end
+```
 
 ## Reference
 
-This section is deprecated. Instead, add reference information to your code as Puppet Strings comments, and then use Strings to generate a REFERENCE.md in your module. For details on how to add code comments and generate documentation with Strings, see the Puppet Strings [documentation](https://puppet.com/docs/puppet/latest/puppet_strings.html) and [style guide](https://puppet.com/docs/puppet/latest/puppet_strings_style.html)
+This module adds the following methods which are accessible if you are creating custom facts. Note that each fact should contain:
 
-If you aren't ready to use Strings yet, manually create a REFERENCE.md in the root of your module directory and list out each of your module's classes, defined types, facts, functions, Puppet tasks, task plans, and resource types and providers, along with the parameters for each.
-
-For each element (class, defined type, function, and so on), list:
-
-  * The data type, if applicable.
-  * A description of what the element does.
-  * Valid values, if the data type doesn't make it obvious.
-  * Default value, if any.
-
-For example:
-
-```
-### `pet::cat`
-
-#### Parameters
-
-##### `meow`
-
-Enables vocalization in your cat. Valid options: 'string'.
-
-Default: 'medium-loud'.
+```ruby
+require 'facter/util/caching'
 ```
 
-## Limitations
+To ensure that the methods are available when running Facter.
 
-In the Limitations section, list any incompatibilities, known issues, or other warnings.
+### `cache_for(number, unit)`
+
+This method sets the duration of the cache. Any node that does not have a cache or the cache is too old will have the fact re-evaluated. If the cache is still valid the cached value will be returned and the fact will not be run.
+
+`number`: Any integer
+
+`unit`: Any of the following units:
+
+  - `:second`
+  - `:seconds`
+  - `:minute`
+  - `:minutes`
+  - `:hour`
+  - `:hours`
+  - `:day`
+  - `:days`
+  - `:week`
+  - `:weeks`
+
+
+### `cache(:name) do ...`
+
+Creates a cache with a given `:name` which must be unique. The duration of the cache is controlled by the `cache_for` method which must be specified above.
+
+### `cache_chunk(:name) do ...`
+
+Works exactly the same as `cache(:name)` but for aggregate facts.
 
 ## Development
 
-In the Development section, tell other users the ground rules for contributing to your project and how they should submit their work.
-
-## Release Notes/Contributors/Etc. **Optional**
-
-If you aren't using changelog, put your release notes here (though you should consider using changelog). You can also add any additional sections you feel are necessary or important to include here. Please use the `## ` header.
+There are not tests for this module yet to just fork and raise a PR.
