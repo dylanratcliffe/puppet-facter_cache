@@ -2,9 +2,9 @@
   "name": "dylanratcliffe-facter_cache",
   "version": "1.0.1",
   "author": "Dylan Ratcliffe",
-  "summary": "",
+  "summary": "Caches long running facts",
   "license": "MIT",
-  "source": "",
+  "source": "https://github.com/dylanratcliffe/puppet-facter_cache",
   "dependencies": [
 
   ],
