@@ -10,7 +10,7 @@ Facter.add(:aggregate_expensive, :type => :aggregate) do
       if values['mac']
         hash                  = Digest::SHA256.digest(values['mac'])
         encoded               = Base64.encode64(hash)
-        interfaces[interface] = {:mac_sha256 => encoded.strip}
+        interfaces[interface] = { :mac_sha256 => encoded.strip }
       end
     end
 

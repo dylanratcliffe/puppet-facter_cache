@@ -67,6 +67,12 @@ Style/WordArray:
   EnforcedStyle: brackets
 Style/CollectionMethods:
   Enabled: true
+Style/HashSyntax:
+  Enabled: false
+Style/Next:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
 Style/MethodCalledOnDoEndBlock:
   Enabled: true
 Style/StringMethods:
