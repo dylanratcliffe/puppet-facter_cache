@@ -21,13 +21,13 @@ This creates a cache for facts that are expensive to run, they are still returne
 UNIX:
 
 ```
-/opt/puppetlabs/facter/cache/facter_cache
+/opt/puppetlabs/puppet/cache/facter_cache
 ```
 
 Windows:
 
 ```
-C:\ProgramData\PuppetLabs\facter\cache\facter_cache
+C:\ProgramData\PuppetLabs\puppet\cache\facter_cache
 ```
 
 ## Usage
