@@ -44,6 +44,7 @@ module Facter::Util
     end
 
     def value
+      return nil unless exists?
       YAML.load_file(yaml_file)[:value]
     end
 
