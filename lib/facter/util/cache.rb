@@ -50,17 +50,11 @@ module Facter::Util
     private
 
     def cache_directory
-      directory   = 'facter_cache'
+      directory = 'facter_cache'
 
-      # This gets the base directory for facter, on UNIX this is
-      # /opt/puppetlabs/facter
-      facter_home = File.expand_path('../../facter', Puppet.settings[:vardir])
-
-      # Get the cache directory
-      cache_dir   = File.expand_path('cache', facter_home)
-
-      # Return the final dir
-      File.expand_path(directory, cache_dir)
+      # The directory should be in a folder under `vardir` on UNIX this is
+      # /opt/puppetlabs/puppet/cache
+      File.expand_path(directory, Puppet.settings[:vardir])
     end
 
     def ensure_directory
