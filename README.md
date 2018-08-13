@@ -58,6 +58,15 @@ require 'facter/util/caching'
 Facter.add(:aggregate_expensive, :type => :aggregate) do
   cache_for 20, :seconds
 
+  # This fact is extremely expensive and should only be run between midnight
+  # and 6am
+  execute_only '00:00', '06:00'
+
+  # If we roll out Puppet to a new server during the day, we don't want this
+  # fact to run on the first instance. It's okay for it to just return nil. We
+  # want to wait until night time to create the cache initially
+  initial_run? false
+
   # This chunk will be cached for the duration specified above
   cache_chunk(:sha256) do
     interfaces = {}
@@ -66,13 +75,14 @@ Facter.add(:aggregate_expensive, :type => :aggregate) do
       if values['mac']
         hash                  = Digest::SHA256.digest(values['mac'])
         encoded               = Base64.encode64(hash)
-        interfaces[interface] = {:mac_sha256 => encoded.strip}
+        interfaces[interface] = { :mac_sha256 => encoded.strip }
       end
     end
 
     interfaces
   end
 end
+
 ```
 
 ## Reference
@@ -112,6 +122,18 @@ Creates a cache with a given `:name` which must be unique. The duration of the c
 ### `cache_chunk(:name) do ...`
 
 Works exactly the same as `cache(:name)` but for aggregate facts.
+
+### `execute_only(from, to)` *Optional*
+
+Ensures that the fact only runs within a certain window. If the cache is invalid, but we are not within the time window, the cache will still be used. Note that if this is the first run and there *is no cache*, it will run the fact to generate it initially. If you want to suppress this behaviour, set `initial_run?` to `false`.
+
+### `execute_only do ...` *Optional*
+
+`execute_only` can be passed a block if you need to do some custom logic to if the fact can be run (e.g. check the current load of the server). If the block returns `false`, the fact will not be run even if the cache is invalid. Note that this does not override fact caching behaviour; if this block returns true, but the cache is still valid, the cache will be used and the fact will not be run.
+
+### `initial_run?` *Optional*
+
+Accepts `true` or `false` and controls whether this fact should be executed initially to populate the cache if it doesn't exist at all. Setting this to `false` means the fact will return `nil` if Puppet is installed during the exclusion window, until fact fact is allowed to run and therefore generate the cache.
 
 ## Development
 

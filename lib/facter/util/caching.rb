@@ -3,15 +3,36 @@ require 'facter/util/cache'
 module Facter::Util::Caching
   require 'time'
 
+  def initialize
+    super
+
+    @blocked     = false
+    @initial_run = true
+  end
+
   def cache_for(number, unit)
     @validity = number * units[unit]
+  end
+
+  def execute_only(from = nil, to = nil)
+    @blocked = if block_given?
+                 # If we are given a block then run the block
+                 yield
+               else
+                 # Otherwise, Check if we are within the execution window
+                 !((Time.parse(from) < Time.now) && (Time.now < Time.parse(to)))
+               end
+  end
+
+  def initial_run?(run)
+    @initial_run = run
   end
 
   def cache(name)
     raise 'cache_for is not set, this much be set for caches to work' unless @validity
     fact_cache = Facter::Util::Cache.new(name, @validity)
 
-    if fact_cache.valid?
+    if fact_cache.valid? || blocked?
       setcode do
         fact_cache.value
       end
@@ -26,7 +47,7 @@ module Facter::Util::Caching
     raise 'cache_for is not set, this much be set for caches to work' unless @validity
     fact_cache = Facter::Util::Cache.new(name, @validity)
 
-    if fact_cache.valid?
+    if fact_cache.valid? || blocked?
       chunk(name) do
         fact_cache.value
       end
@@ -38,6 +59,16 @@ module Facter::Util::Caching
   end
 
   private
+
+  def blocked?
+    # If the fact is blocked we need to check what the initial_run behaviour is
+    # supposed to be
+    if @blocked
+      !@initial_run
+    else
+      false
+    end
+  end
 
   def units
     {
