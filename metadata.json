@@ -1,6 +1,6 @@
 {
   "name": "dylanratcliffe-facter_cache",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "Dylan Ratcliffe",
   "summary": "Caches long running facts",
   "license": "MIT",
@@ -85,6 +85,6 @@
     }
   ],
   "pdk-version": "1.7.0",
-  "template-url": "file:///opt/puppetlabs/pdk/share/cache/pdk-templates.git",
+  "template-url": "https://github.com/puppetlabs/pdk-templates.git",
   "template-ref": "1.7.0-0-g57412ed"
 }
