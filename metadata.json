@@ -1,6 +1,6 @@
 {
   "name": "dylanratcliffe-facter_cache",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "author": "Dylan Ratcliffe",
   "summary": "Caches long running facts",
   "license": "MIT",
