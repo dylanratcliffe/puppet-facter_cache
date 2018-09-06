@@ -1,0 +1,5 @@
+Gemfile:
+  required:
+    ':development':
+      - gem: 'puppet-module'
+        platforms: ruby
