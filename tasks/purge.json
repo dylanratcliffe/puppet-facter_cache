@@ -1,0 +1,10 @@
+{
+  "description": "Removed caches for facts to allow them to run again",
+  "input_method": "stdin",
+  "parameters": {
+    "caches": {
+      "description": "\"all\", or an array of caches to purge",
+      "type": "Variant[Enum[all], Array[String[1]]]"
+    }
+  }
+}
