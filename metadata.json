@@ -5,6 +5,8 @@
   "summary": "Caches long running facts",
   "license": "MIT",
   "source": "https://github.com/dylanratcliffe/puppet-facter_cache",
+  "project_page": "https://github.com/dylanratcliffe/puppet-facter_cache",
+  "issues_url": "https://github.com/dylanratcliffe/puppet-facter_cache/issues",
   "dependencies": [
 
   ],

@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'yaml'
+require 'time'
 
 module Facter::Util
   class Cache
@@ -20,10 +21,14 @@ module Facter::Util
 
     def valid?
       if exists?
-        (File.mtime(yaml_file) + validity_seconds) > Time.now
+        (created + validity_seconds) > Time.now
       else
         false
       end
+    end
+
+    def forced?
+      content[:force_refresh] || false
     end
 
     def yaml_file
@@ -43,9 +48,28 @@ module Facter::Util
       val
     end
 
+    def invalidate!(opts = {})
+      new_content                 = content
+      new_content[:invalid]       = true
+      new_content[:force_refresh] = true if opts[:force_refresh]
+
+      File.write(
+        yaml_file,
+        new_content.to_yaml,
+      )
+    end
+
     def value
-      return nil unless exists?
-      YAML.load_file(yaml_file)[:value]
+      content[:value]
+    end
+
+    def created
+      content[:created]
+    end
+
+    def content
+      return {} unless exists?
+      YAML.load_file(yaml_file)
     end
 
     private

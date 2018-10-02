@@ -1,10 +1,14 @@
 {
-  "description": "Removed caches for facts to allow them to run again",
+  "description": "Removes caches for facts to allow them to run again",
   "input_method": "stdin",
   "parameters": {
     "caches": {
       "description": "\"all\", or an array of caches to purge",
       "type": "Variant[Enum[all], Array[String[1]]]"
+    },
+    "force_refresh": {
+      "description": "Forces all facts to be run next time facter is exeuted, regardless of execute_only schedule",
+      "type": "Optional[Boolean]"
     }
   }
 }

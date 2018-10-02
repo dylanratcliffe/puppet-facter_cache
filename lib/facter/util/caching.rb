@@ -32,7 +32,9 @@ module Facter::Util::Caching
     raise 'cache_for is not set, this much be set for caches to work' unless @validity
     fact_cache = Facter::Util::Cache.new(name, @validity)
 
-    if fact_cache.valid? || blocked?
+    if (fact_cache.valid? || blocked?) && fact_cache.forced? == false
+      # If the cache is valid or execution blocked by a time boundry, AND we are
+      # not being forced to run, return the cached value
       setcode do
         fact_cache.value
       end
@@ -47,7 +49,9 @@ module Facter::Util::Caching
     raise 'cache_for is not set, this much be set for caches to work' unless @validity
     fact_cache = Facter::Util::Cache.new(name, @validity)
 
-    if fact_cache.valid? || blocked?
+    if (fact_cache.valid? || blocked?) && fact_cache.forced? == false
+      # If the cache is valid or execution blocked by a time boundry, AND we are
+      # not being forced to run, return the cached value
       chunk(name) do
         fact_cache.value
       end
@@ -81,7 +85,7 @@ module Facter::Util::Caching
       day:   86_400,
       days:  86_400,
       week:  604_800,
-      weeks: 604_800
+      weeks: 604_800,
     }
   end
 end
