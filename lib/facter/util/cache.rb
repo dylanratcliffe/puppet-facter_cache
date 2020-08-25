@@ -5,7 +5,11 @@ require 'time'
 require 'digest/sha1'
 
 module Facter::Util
+<<<<<<< HEAD
   # Class that represents a fact cache
+=======
+  # Cache
+>>>>>>> e23b7056715fbd5e39f6aaee2086e95b1f7972e5
   class Cache
     attr_reader :name
     attr_reader :validity_seconds
