@@ -3,6 +3,7 @@ require 'yaml'
 require 'time'
 
 module Facter::Util
+  # Class that represents a fact cache
   class Cache
     attr_reader :name
     attr_reader :validity_seconds
@@ -40,8 +41,8 @@ module Facter::Util
         yaml_file,
         {
           created: Time.now,
-          value: val
-        }.to_yaml
+          value: val,
+        }.to_yaml,
       )
 
       # Return the value for use
