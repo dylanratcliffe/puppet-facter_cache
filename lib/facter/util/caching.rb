@@ -1,5 +1,6 @@
 require 'facter/util/cache'
 
+# Module to handle fact caching
 module Facter::Util::Caching
   require 'time'
 

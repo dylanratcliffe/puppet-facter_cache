@@ -1,6 +1,6 @@
 require 'facter/util/caching'
 
-Facter.add(:aggregate_expensive, :type => :aggregate) do
+Facter.add(:aggregate_expensive, type: :aggregate) do
   cache_for 20, :seconds
 
   # This fact is extremely expensive and should only be run between midnight
@@ -17,11 +17,10 @@ Facter.add(:aggregate_expensive, :type => :aggregate) do
     interfaces = {}
 
     Facter.value(:networking)['interfaces'].each do |interface, values|
-      if values['mac']
-        hash                  = Digest::SHA256.digest(values['mac'])
-        encoded               = Base64.encode64(hash)
-        interfaces[interface] = { :mac_sha256 => encoded.strip }
-      end
+      next unless values['mac']
+      hash                  = Digest::SHA256.digest(values['mac'])
+      encoded               = Base64.encode64(hash)
+      interfaces[interface] = { mac_sha256: encoded.strip }
     end
 
     interfaces
