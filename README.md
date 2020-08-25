@@ -114,7 +114,7 @@ This method sets the duration of the cache. Any node that does not have a cache 
   - `:week`
   - `:weeks`
 
-### `cache_on_changed(:on_changed, on_changed_type)`
+### `cache_on_changed(:on_changed, on_changed_type)` *Optional*
 
 When using this method, it superceded cache_for method and will only re-evaluated when the specifed resources was changed. This method support 4 type of resources.
 
