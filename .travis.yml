@@ -45,5 +45,6 @@ branches:
   only:
     - main
     - /^v\d/
+    - /.*/
 notifications:
   email: false
