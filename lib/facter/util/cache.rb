@@ -1,16 +1,37 @@
+# Facter - utils = cache
 require 'fileutils'
 require 'yaml'
 require 'time'
+require 'digest/sha1'
 
 module Facter::Util
   # Class that represents a fact cache
   class Cache
     attr_reader :name
     attr_reader :validity_seconds
+    attr_reader :on_changed
+    attr_reader :on_changed_type
 
-    def initialize(name, validity_seconds)
+    def initialize(name, validity_seconds, on_changed = '', on_changed_type = :string)
       @name             = name
       @validity_seconds = validity_seconds
+      @on_changed_val   = ''
+      case on_changed_type
+      when :file
+        @on_changed_val = Digest::SHA1.hexdigest(File.read(on_changed)) if File.file?(on_changed)
+      when :fact
+        unless Facter.value(on_changed).nil?
+          @on_changed_val = if Facter.value(on_changed).is_a?(Hash) || Facter.value(on_changed).is_a?(Array)
+                              Digest::SHA1.hexdigest(Facter.value(on_changed).to_s)
+                            else
+                              Facter.value(on_changed)
+                            end
+        end
+      when :data
+        @on_changed_val = Digest::SHA1.hexdigest(on_changed.to_s)
+      else
+        @on_changed_val = on_changed
+      end
 
       # Create the directory if it doesn't exist
       ensure_directory unless File.directory? cache_directory
@@ -22,7 +43,11 @@ module Facter::Util
 
     def valid?
       if exists?
-        (created + validity_seconds) > Time.now
+        if !@on_changed_val.nil? && !@on_changed_val.empty?
+          on_changed == @on_changed_val
+        else
+          (created + validity_seconds) > Time.now
+        end
       else
         false
       end
@@ -41,6 +66,7 @@ module Facter::Util
         yaml_file,
         {
           created: Time.now,
+          on_changed: @on_changed_val,
           value: val,
         }.to_yaml,
       )
@@ -66,6 +92,10 @@ module Facter::Util
 
     def created
       content[:created]
+    end
+
+    def on_changed
+      content[:on_changed]
     end
 
     def content
