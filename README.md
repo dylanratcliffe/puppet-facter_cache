@@ -5,7 +5,7 @@ Caches long-running/expensive facts.
 
 Based on [waveclaw/facter_cacheable](https://forge.puppet.com/waveclaw/facter_cacheable) but with a bit more user-friendly API
 
-**Note:** Facter 4 (Part of Puppet platform 7) now includes the ability to cache any fact! It isn't as granular as this module but it also doesn't require you to change any facts. Check out the [release notes](https://puppet.com/docs/puppet/7.0/release_notes_facter.html) for more info.
+**Note:** Facter 4 (Part of Puppet 7) now includes the ability to cache any fact! It isn't as granular as this module but it also doesn't require you to change any facts. Check out the [release notes](https://puppet.com/docs/puppet/7.0/release_notes_facter.html) for more info. This module hasn't yet been tested with Facter 4.
 
 #### Table of Contents
 
